@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventarios</title>
+</head>
+<body>
+    {% load filtro_usuario %}
+    <nav>
+        <ul>
+            <li>
+                <a href="/">Menu</a>
+            </li>
+            <li>
+                <a href="/">Menu</a>
+            </li>
+            <li>
+                <a href="/">Menu</a>
+            </li>
+            {% if request.user.is_authenticated and request.user|has_group:"Admin" %}
+            <li>
+                <a href="/signup">Register</a>
+            </li>
+            {% endif %}
+            <li>
+                <a href="/">Logout</a>
+            </li>
+        </ul>
+    </nav>
+    {% block content %}
+    {% endblock %}
+</body>
+</html>
