@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Registrar Producto</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if messages %}
+        {% for message in messages %}
+        Swal.fire({
+            icon: '{{ message.tags }}', // "success", "error", etc.
+            title: '{{ message|escapejs }}',
+            showConfirmButton: true,
+            timer: 3000 // 3 seconds
+        });
+        {% endfor %}
+        {% endif %}
+    });
+</script>
+{% endblock %}
