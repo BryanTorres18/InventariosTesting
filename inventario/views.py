@@ -35,7 +35,7 @@ def entrada_inventario(request):
             producto.existencias += cantidad
             producto.save()
             messages.success(request, "Producto agregado correctamente al inventario.")
-            return redirect('home')
+            return redirect('entrada_inventario')
         else:
             messages.error(request, "Error en el formulario.")
     else:
@@ -54,7 +54,7 @@ def salida_inventario(request):
                 producto.existencias -= cantidad
                 producto.save()
                 messages.success(request, "Producto retirado correctamente del inventario.")
-                return redirect('home')
+                return redirect('salida_inventario')
             else:
                 form.add_error('cantidad', 'No hay suficiente stock.')
                 messages.error(request, "No hay suficiente stock disponible.")
