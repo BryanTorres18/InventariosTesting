@@ -1,1 +1,1 @@
-web: gunicorn inventarios.wsgi --log file -
+web: gunicorn inventarios.wsgi
