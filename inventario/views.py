@@ -3,11 +3,12 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from django.db import IntegrityError
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .forms import ProductoForm, EntradaInventarioForm, SalidaInventarioForm, ProductoSearchForm, EditarProductoForm
+
+from .forms import ProductoForm, EntradaInventarioForm, SalidaInventarioForm
 from inventario.models import Producto
-from .models import Producto
+
 
 def registrar_producto(request):
     if request.method == 'POST':
@@ -64,6 +65,8 @@ def salida_inventario(request):
 
     return render(request, 'salida_inventario.html', {'form': form})
 
+
+
 def home(request):
     productos = Producto.objects.filter(usuario=request.user)
     return render(request, 'home.html', {'productos': productos})
@@ -94,7 +97,6 @@ def signup(request):
             'form': UserCreationForm,
             'error': 'La contraseña con coincide'
         })
-    
 def signin(request):
     if request.method == 'GET':
         return render(request, 'signin.html', {
@@ -116,32 +118,3 @@ def signin(request):
 def signout(request):
     logout(request)
     return redirect('signin')
-
-def lista_productos(request):
-    form = ProductoSearchForm(request.GET)
-    productos = Producto.objects.all()
-
-    if form.is_valid():
-        search_query = form.cleaned_data.get('search_query')
-        if search_query:
-            productos = productos.filter(descripcion__icontains=search_query)
-
-    context = {'productos': productos, 'form': form}
-    return render(request, 'lista_productos.html', context)
-
-def buscar_producto(request):
-    query = request.GET.get('q')
-    productos = Producto.objects.filter(usuario=request.user, descripcion__icontains=query)
-    return render(request, 'home.html', {'productos': productos})
-
-def editar_producto(request, producto_id):
-    producto = get_object_or_404(Producto, id_del_producto=producto_id)
-    if request.method == 'POST':
-        form = EditarProductoForm(request.POST, instance=producto)
-        if form.is_valid():
-            form.save()
-            return redirect('home')
-    else:
-        form = EditarProductoForm(instance=producto)
-    return render(request, 'editar_producto.html', {'form': form})
-
