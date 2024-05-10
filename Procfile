@@ -1,1 +1,1 @@
-web: gunicorn inventarios.wsgi:application
+web: gunicorn inventarios.wsgi:application --log-level
