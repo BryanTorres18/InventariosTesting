@@ -1,29 +1,20 @@
 {% extends 'base.html' %}
 {% block content %}
-<style>
-    h1.display-4 {
-        font-weight: bold;
-        color: #333;
-        margin-bottom: 20px;
-    }
-    h2 {
-        color: #555;
-        margin-bottom: 30px;
-    }
-</style>
-<div class="container text-center">
-    <h1 class="display-4">Home</h1>
-    <h2 class="mb-4">Inventario</h2>
+<div class="container">
+    <div class="text-center">
+        <h1 class="display-4 font-weight-bold text-primary">Home</h1>
+        <h2 class="text-muted mb-4">Inventario</h2>
+    </div>
 
     <div class="row justify-content-center">
-        <div class="col-12 mb-3">
-            <a href="/registrar" class="btn btn-primary btn-lg">Registrar Producto</a>
+        <div class="col-12 col-md-6 mb-3 text-center"> <!-- Agregamos text-center aquí -->
+            <a href="/registrar" class="btn btn-primary btn-lg btn-block">Registrar Producto</a>
         </div>
-        <div class="col-md-6 mb-2">
-            <a href="/entrada" class="btn btn-success btn-lg">Entrada Producto</a>
+        <div class="col-12 col-md-6 mb-3 text-center"> <!-- Agregamos text-center aquí -->
+            <a href="/entrada" class="btn btn-success btn-lg btn-block">Entrada Producto</a>
         </div>
-        <div class="col-md-6 mb-2">
-            <a href="/salida" class="btn btn-danger btn-lg">Salida Producto</a>
+        <div class="col-12 col-md-6 mb-3 text-center"> <!-- Agregamos text-center aquí -->
+            <a href="/salida" class="btn btn-danger btn-lg btn-block">Salida Producto</a>
         </div>
     </div>
 
