@@ -9,12 +9,21 @@ from .forms import ProductoForm, EntradaInventarioForm, SalidaInventarioForm, Pr
 from inventario.models import Producto
 from .models import Producto
 
+def check_authenticated(view_func):
+    def wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('signin')
+        return view_func(request, *args, **kwargs)
+    return wrapped_view
+
+@login_required
 def registrar_producto(request):
     if request.method == 'POST':
         form = ProductoForm(request.POST)
         if form.is_valid():
             producto = form.save(commit=False)
             producto.usuario = request.user
+            producto.full_clean()
             producto.save()
             messages.success(request, "Producto registrado con éxito.")
             return redirect('home')
@@ -24,25 +33,28 @@ def registrar_producto(request):
         form = ProductoForm()
     return render(request, 'registrar_producto.html', {'form': form})
 
-@login_required
+@check_authenticated
 def entrada_inventario(request):
     if request.method == 'POST':
         form = EntradaInventarioForm(request.POST, user=request.user)
         if form.is_valid():
             producto = form.cleaned_data['producto']
             cantidad = form.cleaned_data['cantidad']
+
             producto.existencias += cantidad
             producto.save()
+
             messages.success(request, "Producto agregado correctamente al inventario.")
-            return redirect('entrada_inventario')
+            return redirect('home')
         else:
             messages.error(request, "Error en el formulario.")
     else:
         form = EntradaInventarioForm(user=request.user)
+
     return render(request, 'entrada_inventario.html', {'form': form})
 
 
-@login_required
+@check_authenticated
 def salida_inventario(request):
     if request.method == 'POST':
         form = SalidaInventarioForm(request.POST, user=request.user)
@@ -53,7 +65,7 @@ def salida_inventario(request):
                 producto.existencias -= cantidad
                 producto.save()
                 messages.success(request, "Producto retirado correctamente del inventario.")
-                return redirect('salida_inventario')
+                return redirect('home')
             else:
                 form.add_error('cantidad', 'No hay suficiente stock.')
                 messages.error(request, "No hay suficiente stock disponible.")
@@ -61,9 +73,9 @@ def salida_inventario(request):
             messages.error(request, "Error en el formulario.")
     else:
         form = SalidaInventarioForm(user=request.user)
-
     return render(request, 'salida_inventario.html', {'form': form})
 
+@login_required
 def home(request):
     productos = Producto.objects.filter(usuario=request.user)
     return render(request, 'home.html', {'productos': productos})
@@ -71,8 +83,6 @@ def home(request):
 def is_admin(user):
     return user.groups.filter(name='Admin').exists()
 
-@login_required
-@user_passes_test(is_admin)
 def signup(request):
     if request.method == 'GET':
         return render(request, 'signup.html', {
@@ -84,7 +94,7 @@ def signup(request):
                 user = User.objects.create_user(username=request.POST['username'],
                                                 password=request.POST['password1'])
                 user.save()
-                return redirect('home')
+                return redirect('signin')
             except IntegrityError:
                 return render(request, 'signup.html', {
                     'form': UserCreationForm,
@@ -108,6 +118,7 @@ def signin(request):
             messages.error(request, 'El usuario o contraseña es incorrecto')
             return render(request, 'signin.html', {
                 'form': AuthenticationForm(),
+                'show_sweetalert': True
             })
         else:
             login(request, user)
@@ -117,6 +128,7 @@ def signout(request):
     logout(request)
     return redirect('signin')
 
+@check_authenticated
 def lista_productos(request):
     form = ProductoSearchForm(request.GET)
     productos = Producto.objects.all()
@@ -129,11 +141,13 @@ def lista_productos(request):
     context = {'productos': productos, 'form': form}
     return render(request, 'lista_productos.html', context)
 
+@check_authenticated
 def buscar_producto(request):
     query = request.GET.get('q')
     productos = Producto.objects.filter(usuario=request.user, descripcion__icontains=query)
     return render(request, 'home.html', {'productos': productos})
 
+@check_authenticated
 def editar_producto(request, producto_id):
     producto = get_object_or_404(Producto, id_del_producto=producto_id)
     if request.method == 'POST':
