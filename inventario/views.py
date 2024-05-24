@@ -5,6 +5,9 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+
 from .forms import ProductoForm, EntradaInventarioForm, SalidaInventarioForm, ProductoSearchForm, EditarProductoForm
 from inventario.models import Producto
 from .models import Producto
@@ -104,7 +107,8 @@ def signup(request):
             'form': UserCreationForm,
             'error': 'La contraseña con coincide'
         })
-    
+
+
 def signin(request):
     if request.method == 'GET':
         return render(request, 'signin.html', {
@@ -113,6 +117,14 @@ def signin(request):
     else:
         username = request.POST.get('usuario')
         password = request.POST.get('contrasena')
+
+        if not username or not password:
+            messages.error(request, 'Usuario y contraseña son obligatorios.')
+            return render(request, 'signin.html', {
+                'form': AuthenticationForm(),
+                'show_sweetalert': True
+            })
+
         user = authenticate(request, username=username, password=password)
         if user is None:
             messages.error(request, 'El usuario o contraseña es incorrecto')
@@ -126,7 +138,9 @@ def signin(request):
 
 def signout(request):
     logout(request)
-    return redirect('signin')
+    response = HttpResponseRedirect(reverse('signin'))
+    response.delete_cookie('sessionid')
+    return response
 
 @check_authenticated
 def lista_productos(request):
@@ -158,4 +172,5 @@ def editar_producto(request, producto_id):
     else:
         form = EditarProductoForm(instance=producto)
     return render(request, 'editar_producto.html', {'form': form})
+
 

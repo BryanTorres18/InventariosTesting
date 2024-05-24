@@ -94,7 +94,10 @@
                     </div>
                     <div class="mb-3">
                         <label for="contrasena">Contraseña</label>
-                        <input type="password" id="contrasena" name="contrasena" placeholder="Contraseña" required>
+                        <div class="password-container">
+                            <input type="password" id="contrasena" name="contrasena" placeholder="Contraseña" required>
+                            <input type="checkbox" id="show-password"> Mostrar contraseña
+                        </div>
                     </div>
                     <button type="submit">Login <i class="fas fa-sign-in-alt"></i></button>
                 </form>
@@ -105,17 +108,20 @@
         </div>
     </div>
 </div>
-</body>
-    <script>
-    {% if show_sweetalert %}
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'El usuario o contraseña es incorrecto',
-            confirmButtonColor: '#ff6b6b',
-            confirmButtonText: 'Cerrar',
-        });
-    {% endif %}
+
+<script>
+    const showPasswordCheckbox = document.getElementById('show-password');
+    const passwordField = document.getElementById('contrasena');
+
+    showPasswordCheckbox.addEventListener('change', function() {
+        const type = this.checked ? 'text' : 'password';
+        passwordField.setAttribute('type', type);
+    });
 </script>
+
+</body>
 </html>
+
+
+
 

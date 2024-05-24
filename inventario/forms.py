@@ -1,6 +1,6 @@
 from django import forms
-from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
+import re
 
 from .models import Producto
 
@@ -14,15 +14,22 @@ class ProductoForm(forms.ModelForm):
             'precio': forms.NumberInput(attrs={'min': '0.01'}),
         }
 
-        def clean(self):
-            cleaned_data = super().clean()
-            costo = cleaned_data.get('costo')
-            precio = cleaned_data.get('precio')
+    def clean_referencias(self):
+        referencias = self.cleaned_data.get('referencias')
+        if not re.match(r'^[\w\s]+$', referencias):
+            raise ValidationError('Las referencias solo pueden contener letras, números y espacios.')
 
-            if costo and precio and costo >= precio:
-                raise forms.ValidationError('El costo debe ser menor que el precio.')
+        return referencias
 
-            return cleaned_data
+    def clean(self):
+        cleaned_data = super().clean()
+        costo = cleaned_data.get('costo')
+        precio = cleaned_data.get('precio')
+
+        if costo and precio and costo >= precio:
+            raise forms.ValidationError('El costo debe ser menor que el precio.')
+
+        return cleaned_data
 
 class EntradaInventarioForm(forms.Form):
     producto = forms.ModelChoiceField(queryset=Producto.objects.none(), label="Seleccione un Producto")
